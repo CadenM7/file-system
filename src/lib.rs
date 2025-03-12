@@ -121,9 +121,21 @@ impl LetterMover {
 
     fn points(&mut self, score: usize) {
         /* If player destorys object, score += 1 */
+
+        /* If self.key == self.object {
+            self.score += 1;
+        } */
     }
 
     fn game_over(&mut self) {
         /* If player hits or destorys object, restart game */
+
+        /* If self.key == self.object {
+            self.dx = 0;
+            self.dy = 0;
+            self.col = BUFFER_WIDTH / 2;
+            self.row = BUFFER_HEIGHT / 2;
+            self.score = 0;
+        } */
     }
 }
