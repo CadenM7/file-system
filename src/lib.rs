@@ -23,6 +23,7 @@ pub struct LetterMover {
     row: usize,
     dx: usize,
     dy: usize,
+    score: usize,
 }
 
 pub fn safe_add<const LIMIT: usize>(a: usize, b: usize) -> usize {
@@ -47,6 +48,7 @@ impl Default for LetterMover {
             row: BUFFER_HEIGHT / 2,
             dx: 0,
             dy: 0,
+            score: 0,
         }
     }
 }
@@ -115,5 +117,13 @@ impl LetterMover {
             self.next_letter = add1::<BUFFER_WIDTH>(self.next_letter);
             self.num_letters = min(self.num_letters + 1, BUFFER_WIDTH);
         }
+    }
+
+    fn points(&mut self, score: usize) {
+        /* If player hits or destorys object, score += 1 */
+    }
+
+    fn game_over(&mut self) {
+        /* If player hits or destorys object, restart game */
     }
 }
