@@ -4,7 +4,7 @@
 use crossbeam::atomic::AtomicCell;
 use pc_keyboard::DecodedKey;
 use pluggable_interrupt_os::{vga_buffer::clear_screen, HandlerTable};
-use pluggable_interrupt_template::LetterMover;
+use file_system::LetterMover;
 
 #[no_mangle]
 pub extern "C" fn _start() -> ! {

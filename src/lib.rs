@@ -120,7 +120,7 @@ impl LetterMover {
     }
 
     fn points(&mut self, score: usize) {
-        /* If player hits or destorys object, score += 1 */
+        /* If player destorys object, score += 1 */
     }
 
     fn game_over(&mut self) {
