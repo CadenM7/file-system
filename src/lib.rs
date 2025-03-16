@@ -2,9 +2,9 @@
 
 use num::Integer;
 use pc_keyboard::{DecodedKey, KeyCode};
-use pluggable_interrupt_os::vga_buffer::{
+use pluggable_interrupt_os::{println, vga_buffer::{
     is_drawable, plot, Color, ColorCode, BUFFER_HEIGHT, BUFFER_WIDTH,
-};
+}};
 
 use core::{
     clone::Clone,
@@ -15,15 +15,15 @@ use core::{
 };
 
 #[derive(Copy, Clone, Eq, PartialEq)]
-pub struct LetterMover {
-    letters: [char; BUFFER_WIDTH],
+pub struct Player {
+    ship: [char; BUFFER_WIDTH],
     num_letters: usize,
     next_letter: usize,
     col: usize,
     row: usize,
     dx: usize,
     dy: usize,
-    score: usize,
+    afk: usize,
 }
 
 pub fn safe_add<const LIMIT: usize>(a: usize, b: usize) -> usize {
@@ -38,22 +38,34 @@ pub fn sub1<const LIMIT: usize>(value: usize) -> usize {
     safe_add::<LIMIT>(value, LIMIT - 1)
 }
 
-impl Default for LetterMover {
+/* pub fn game_over(&mut self) {
+     If player hits object, restart game */
+
+    /* If self.key == self.object {
+        self.dx = 0;
+        self.dy = 0;
+        self.col = BUFFER_WIDTH / 2;
+        self.row = BUFFER_HEIGHT / 2;
+        self.score = 0;
+    }
+}*/
+
+impl Default for Player {
     fn default() -> Self {
         Self {
-            letters: ['A'; BUFFER_WIDTH],
+            ship : ['^'; BUFFER_WIDTH],
             num_letters: 1,
             next_letter: 1,
             col: BUFFER_WIDTH / 2,
             row: BUFFER_HEIGHT / 2,
             dx: 0,
             dy: 0,
-            score: 0,
+            afk: 0,
         }
     }
 }
 
-impl LetterMover {
+impl Player {
     fn letter_columns(&self) -> impl Iterator<Item = usize> + '_ {
         (0..self.num_letters).map(|n| safe_add::<BUFFER_WIDTH>(n, self.col))
     }
@@ -62,6 +74,7 @@ impl LetterMover {
         self.clear_current();
         self.update_location();
         self.draw_current();
+        self.afk();
     }
 
     fn clear_current(&self) {
@@ -73,12 +86,13 @@ impl LetterMover {
     fn update_location(&mut self) {
         self.col = safe_add::<BUFFER_WIDTH>(self.col, self.dx);
         self.row = safe_add::<BUFFER_HEIGHT>(self.row, self.dy);
+        self.afk += 1;
     }
 
     fn draw_current(&self) {
         for (i, x) in self.letter_columns().enumerate() {
             plot(
-                self.letters[i],
+                self.ship[i],
                 x,
                 self.row,
                 ColorCode::new(Color::Cyan, Color::Black),
@@ -90,22 +104,29 @@ impl LetterMover {
         match key {
             DecodedKey::RawKey(code) => self.handle_raw(code),
             DecodedKey::Unicode(c) => self.handle_unicode(c),
-        }
+        } 
     }
 
     fn handle_raw(&mut self, key: KeyCode) {
         match key {
             KeyCode::ArrowLeft => {
                 self.dx = sub1::<BUFFER_WIDTH>(self.dx);
+                self.afk = 0;
             }
             KeyCode::ArrowRight => {
                 self.dx = add1::<BUFFER_WIDTH>(self.dx);
+                self.afk = 0;
             }
             KeyCode::ArrowUp => {
                 self.dy = sub1::<BUFFER_HEIGHT>(self.dy);
+                self.afk = 0;
             }
             KeyCode::ArrowDown => {
                 self.dy = add1::<BUFFER_HEIGHT>(self.dy);
+                self.afk = 0;
+            }
+            KeyCode::Spacebar => {
+
             }
             _ => {}
         }
@@ -113,29 +134,25 @@ impl LetterMover {
 
     fn handle_unicode(&mut self, key: char) {
         if is_drawable(key) {
-            self.letters[self.next_letter] = key;
+            self.ship[self.next_letter] = key;
             self.next_letter = add1::<BUFFER_WIDTH>(self.next_letter);
             self.num_letters = min(self.num_letters + 1, BUFFER_WIDTH);
         }
     }
-
-    fn points(&mut self, score: usize) {
-        /* If player destorys object, score += 1 */
-
-        /* If self.key == self.object {
-            self.score += 1;
-        } */
+    fn afk(&mut self) {
+        if self.afk >= 100 {
+            self.game_over();
+            self.afk = 0;
+        }
     }
-
     fn game_over(&mut self) {
-        /* If player hits or destorys object, restart game */
-
-        /* If self.key == self.object {
-            self.dx = 0;
-            self.dy = 0;
-            self.col = BUFFER_WIDTH / 2;
-            self.row = BUFFER_HEIGHT / 2;
-            self.score = 0;
-        } */
+        self.clear_current();
+        self.dx = 0;
+        self.dy = 0;
+        self.col = BUFFER_WIDTH / 2;
+        self.row = BUFFER_HEIGHT / 2;
+        self.num_letters = 1;
+        self.next_letter = 1;
+        self.ship = ['^'; BUFFER_WIDTH];
     }
 }
