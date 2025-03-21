@@ -123,8 +123,6 @@ impl Player {
     fn handle_unicode(&mut self, key: char) {
         if is_drawable(key) {
             self.ship[self.next_letter] = key;
-            self.next_letter = add1::<BUFFER_WIDTH>(self.next_letter);
-            self.num_letters = min(self.num_letters + 1, BUFFER_WIDTH);
         }
     }
     fn afk(&mut self) {
