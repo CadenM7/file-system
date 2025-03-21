@@ -38,18 +38,6 @@ pub fn sub1<const LIMIT: usize>(value: usize) -> usize {
     safe_add::<LIMIT>(value, LIMIT - 1)
 }
 
-/* pub fn game_over(&mut self) {
-     If player hits object, restart game */
-
-    /* If self.key == self.object {
-        self.dx = 0;
-        self.dy = 0;
-        self.col = BUFFER_WIDTH / 2;
-        self.row = BUFFER_HEIGHT / 2;
-        self.score = 0;
-    }
-}*/
-
 impl Default for Player {
     fn default() -> Self {
         Self {
